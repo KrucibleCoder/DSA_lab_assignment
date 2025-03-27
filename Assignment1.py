@@ -1,109 +1,84 @@
-class HashTable:
-    """
-    A Hash Table implementation with support for different collision resolution techniques.
-    Supported methods: Linear Probing, Quadratic Probing, and Double Hashing.
-    """
-    def __init__(self, size, collision_resolution):
-        self.size = size
-        self.table = [None] * size  # Initialize hash table with None
-        self.collision_resolution = collision_resolution  # Set collision resolution method
+#Problem Statement: Consider telephone book database on N clients. Make use of a hash 
+#table implementation to quickly look up client’s telephone number. Make use of two 
+#collision handling techniques and compare them using number of comparisons required to 
+#find a set of telephone numbers. 
+#table implementation to quickly look up client’s telephone number. Make use of two 
+#collision handling techniques and compare them using number of comparisons required to 
+#find a set of telephone numbers.
+
+class Node:
+    """Class representing a node in the Expression Tree."""
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
+
+class ExpressionTree:
+    """Class for constructing and evaluating an Expression Tree."""
+    def __init__(self):
+        self.root = None
     
-    def hash_function(self, key):
-        """Computes the primary hash index for a given key."""
-        return key % self.size
+    def construct_tree(self, postfix):
+        """Constructs an expression tree from a given postfix expression."""
+        stack = []
+        for char in postfix:
+            if char.isalnum():  # If operand, create node and push to stack
+                stack.append(Node(char))
+            else:  # If operator, pop two nodes, create new node and push back
+                node = Node(char)
+                node.right = stack.pop()
+                node.left = stack.pop()
+                stack.append(node)
+        self.root = stack.pop()
     
-    def linear_probing(self, index):
-        """Handles collisions using Linear Probing."""
-        while self.table[index] is not None:
-            index = (index + 1) % self.size  # Move to next slot
-        return index
+    def inorder_traversal(self, node):
+        """Performs in-order traversal of the expression tree."""
+        if node:
+            self.inorder_traversal(node.left)
+            print(node.value, end=' ')
+            self.inorder_traversal(node.right)
     
-    def quadratic_probing(self, index, key):
-        """Handles collisions using Quadratic Probing."""
-        i = 1
-        while self.table[(index + i ** 2) % self.size] is not None:
-            i += 1
-        return (index + i ** 2) % self.size
+    def preorder_traversal(self, node):
+        """Performs pre-order traversal of the expression tree."""
+        if node:
+            print(node.value, end=' ')
+            self.preorder_traversal(node.left)
+            self.preorder_traversal(node.right)
     
-    def double_hashing(self, index, key):
-        """Handles collisions using Double Hashing."""
-        step = 7 - (key % 7)  # Secondary hash function
-        while self.table[index] is not None:
-            index = (index + step) % self.size  # Move by step size
-        return index
-    
-    def insert(self, key, value):
-        """Inserts a key-value pair into the hash table."""
-        index = self.hash_function(key)
-        if self.table[index] is None:
-            self.table[index] = (key, value)
-        else:
-            print(f"Collision detected at index {index} for key {key}.")
-            # Resolve collision based on the selected method
-            if self.collision_resolution == 'linear':
-                index = self.linear_probing(index)
-            elif self.collision_resolution == 'quadratic':
-                index = self.quadratic_probing(index, key)
-            elif self.collision_resolution == 'double':
-                index = self.double_hashing(index, key)
-            self.table[index] = (key, value)
-    
-    def search(self, key):
-        """Searches for a key in the hash table and returns its value if found."""
-        index = self.hash_function(key)
-        for _ in range(self.size):
-            if self.table[index] is None:
-                return None  # Key not found
-            if self.table[index][0] == key:
-                return self.table[index][1]  # Return the value
-            index = (index + 1) % self.size  # Move to next slot (Linear probing for search)
-        return None
-    
-    def delete(self, key):
-        """Deletes a key from the hash table if present."""
-        index = self.hash_function(key)
-        for _ in range(self.size):
-            if self.table[index] is None:
-                return False  # Key not found
-            if self.table[index][0] == key:
-                self.table[index] = None  # Remove the entry
-                return True
-            index = (index + 1) % self.size  # Move to next slot
-        return False
-    
-    def display(self):
-        """Displays the hash table contents."""
-        for i, value in enumerate(self.table):
-            print(f"Index {i}: {value}")
+    def postorder_traversal(self, node):
+        """Performs post-order traversal of the expression tree."""
+        if node:
+            self.postorder_traversal(node.left)
+            self.postorder_traversal(node.right)
+            print(node.value, end=' ')
     
 if __name__ == "__main__":
-    size = int(input("Enter hash table size: "))
-    print("Select collision resolution method: linear, quadratic, or double")
-    method = input("Enter method: ").strip().lower()
-    
-    ht = HashTable(size, method)
+    exp_tree = ExpressionTree()
+    postfix_expr = input("Enter a postfix expression: ")
+    exp_tree.construct_tree(postfix_expr)
     
     while True:
-        print("\n1. Insert\n2. Search\n3. Delete\n4. Display\n5. Exit")
+        print("\nMenu:")
+        print("1. Display In-Order Traversal")
+        print("2. Display Pre-Order Traversal")
+        print("3. Display Post-Order Traversal")
+        print("4. Exit")
+        
         choice = int(input("Enter your choice: "))
         
         if choice == 1:
-            key = int(input("Enter key: "))
-            value = input("Enter value: ")
-            ht.insert(key, value)
+            print("In-Order Traversal:")
+            exp_tree.inorder_traversal(exp_tree.root)
+            print()
         elif choice == 2:
-            key = int(input("Enter key to search: "))
-            result = ht.search(key)
-            print(f"Value found: {result}" if result else "Key not found")
+            print("Pre-Order Traversal:")
+            exp_tree.preorder_traversal(exp_tree.root)
+            print()
         elif choice == 3:
-            key = int(input("Enter key to delete: "))
-            if ht.delete(key):
-                print("Key deleted successfully")
-            else:
-                print("Key not found")
+            print("Post-Order Traversal:")
+            exp_tree.postorder_traversal(exp_tree.root)
+            print()
         elif choice == 4:
-            ht.display()
-        elif choice == 5:
             break
         else:
             print("Invalid choice! Please enter a valid option.")
